@@ -894,7 +894,7 @@ mejs.HtmlMediaElementShim = {
 			return this.createPlugin( playback,  options, poster, autoplay, preload, controls);
 		} else {
 			// boo, no HTML5, no Flash, no Silverlight.
-			this.createErrorMessage( playback, options, poster );
+			this.createM3uFrame( playback, options, poster );
 			
 			return this;
 		}
@@ -1103,27 +1103,28 @@ mejs.HtmlMediaElementShim = {
 		}
 	},
 
-	createErrorMessage: function(playback, options, poster) {
+
+	createM3uFrame: function(playback, options, poster) {
 		var 
 			htmlMediaElement = playback.htmlMediaElement,
-			errorContainer = document.createElement('div');
+		m3uContainer = document.createElement('iframe');
 			
-		errorContainer.className = 'me-cannotplay';
-
 		try {
-			errorContainer.style.width = htmlMediaElement.width + 'px';
-			errorContainer.style.height = htmlMediaElement.height + 'px';
+			m3uContainer.style.width = htmlMediaElement.width + 'px';
+			m3uContainer.style.height = htmlMediaElement.height + 'px';
 		} catch (e) {}
 
-		errorContainer.innerHTML = (poster !== '') ?
-			'<a href="' + playback.url + '"><img src="' + poster + '" width="100%" height="100%" /></a>' :
-			'<a href="' + playback.url + '"><span>' + mejs.i18n.t('Download File') + '</span></a>';
+		m3uContainer.setAttribute("src", playback.url + ".m3u"); 
 
-		htmlMediaElement.parentNode.insertBefore(errorContainer, htmlMediaElement);
+		m3uContainer.innerHTML = 
+			'<a href="' + playback.url + '.m3u"><span>' + mejs.i18n.t('Stream using player') + '</span></a>';
+
+		htmlMediaElement.parentNode.insertBefore(m3uContainer, htmlMediaElement);
 		htmlMediaElement.style.display = 'none';
 
 		options.error(htmlMediaElement);
 	},
+
 
 	createPlugin:function(playback, options, poster, autoplay, preload, controls) {
 		var 
